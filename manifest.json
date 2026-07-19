@@ -1,0 +1,11 @@
+{
+	"id": "FolderView",
+	"name": "FolderView",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Shows folder contents in a view.",
+	"author": "Hans",
+	"authorUrl": "",
+	"fundingUrl": "",
+	"isDesktopOnly": false
+}
