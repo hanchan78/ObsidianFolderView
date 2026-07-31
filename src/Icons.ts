@@ -1,27 +1,35 @@
-import { TFile } from "obsidian";
+import { setIcon, TFile } from "obsidian";
 
 export class IconService {
 	renderFolderIcon(container: HTMLElement): void {
-		container.createSpan({
-			text: "📁",
-			cls: "folder-view-icon",
-		});
+		this.renderIcon(container, "folder");
 	}
 
 	renderFileIcon(container: HTMLElement, file: TFile): void {
-		container.createSpan({
-			text: this.getEmoji(file),
-			cls: "folder-view-icon",
-		});
+		this.renderIcon(container, this.getFileIcon(file));
 	}
 
-	private getEmoji(file: TFile): string {
+	renderChevronIcon(container: HTMLElement): HTMLElement {
+		return this.renderIcon(container, "chevron-down");
+	}
+
+	private renderIcon(container: HTMLElement, iconName: string): HTMLElement {
+		const icon = container.createSpan({
+			cls: "folder-view-icon",
+		});
+
+		setIcon(icon, iconName);
+
+		return icon;
+	}
+
+	private getFileIcon(file: TFile): string {
 		switch (file.extension.toLowerCase()) {
 			case "md":
-				return "📝";
-
 			case "pdf":
-				return "📄";
+			case "doc":
+			case "docx":
+				return "file-text";
 
 			case "png":
 			case "jpg":
@@ -29,45 +37,41 @@ export class IconService {
 			case "gif":
 			case "svg":
 			case "webp":
-				return "🖼️";
+				return "image";
 
 			case "mp4":
 			case "mkv":
 			case "avi":
 			case "mov":
-				return "🎬";
+				return "film";
 
 			case "mp3":
 			case "wav":
 			case "ogg":
 			case "flac":
-				return "🎵";
-
-			case "doc":
-			case "docx":
-				return "📘";
+				return "music";
 
 			case "xls":
 			case "xlsx":
-				return "📊";
+				return "sheet";
 
 			case "ppt":
 			case "pptx":
-				return "📽️";
+				return "presentation";
 
 			case "canvas":
-				return "🎨";
+				return "layout-dashboard";
 
 			case "excalidraw":
-				return "✏️";
+				return "pen-tool";
 
 			case "zip":
 			case "7z":
 			case "rar":
-				return "📦";
+				return "archive";
 
 			default:
-				return "📄";
+				return "file";
 		}
 	}
 }

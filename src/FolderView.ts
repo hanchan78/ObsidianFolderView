@@ -1,4 +1,5 @@
 import { App, TFile } from "obsidian";
+import { CollapsedFolderState } from "./CollapsedFolderState";
 import { FolderTree } from "./FolderTree";
 import { TreeRenderer } from "./TreeRenderer";
 
@@ -6,9 +7,15 @@ export class FolderView {
 	private readonly folderTree: FolderTree;
 	private readonly treeRenderer: TreeRenderer;
 
-	constructor(private readonly app: App) {
+	constructor(
+		private readonly app: App,
+		collapsedFolderState: CollapsedFolderState
+	) {
 		this.folderTree = new FolderTree();
-		this.treeRenderer = new TreeRenderer(app);
+		this.treeRenderer = new TreeRenderer(
+			app,
+			collapsedFolderState
+		);
 	}
 
 	render(container: HTMLElement, folderPath: string): void {

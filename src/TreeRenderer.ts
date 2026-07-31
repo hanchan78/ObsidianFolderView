@@ -1,11 +1,15 @@
 import { App } from "obsidian";
+import { CollapsedFolderState } from "./CollapsedFolderState";
 import { IconService } from "./Icons";
 import { FileNode, FolderNode } from "./Types";
 
 export class TreeRenderer {
 	private readonly iconService: IconService;
 
-	constructor(private readonly app: App) {
+	constructor(
+		private readonly app: App,
+		private readonly collapsedFolderState: CollapsedFolderState
+	) {
 		this.iconService = new IconService();
 	}
 
@@ -23,16 +27,28 @@ export class TreeRenderer {
 		parent: HTMLElement,
 		folder: FolderNode
 	): void {
-		// Render folders first
+		for (const fileNode of folder.files) {
+			this.renderFile(parent, fileNode);
+		}
+
 		for (const childFolder of folder.folders) {
+			const isCollapsed =
+				this.collapsedFolderState.isCollapsed(childFolder.path);
 			const item = parent.createEl("li", {
 				cls: "folder-view-folder",
 			});
 
-			const header = item.createDiv({
+			const header = item.createEl("button", {
 				cls: "folder-view-folder-header",
+				attr: {
+					type: "button",
+					"aria-expanded": String(!isCollapsed),
+				},
 			});
 
+			const chevron =
+				this.iconService.renderChevronIcon(header);
+			chevron.toggleClass("is-collapsed", isCollapsed);
 			this.iconService.renderFolderIcon(header);
 
 			header.createSpan({
@@ -43,13 +59,29 @@ export class TreeRenderer {
 			const childList = item.createEl("ul", {
 				cls: "folder-view-folder-children",
 			});
+			childList.hidden = isCollapsed;
 
 			this.renderFolderContents(childList, childFolder);
-		}
 
-		// Render files
-		for (const fileNode of folder.files) {
-			this.renderFile(parent, fileNode);
+			header.addEventListener("click", () => {
+				const isExpanded =
+					header.getAttribute("aria-expanded") === "true";
+				const nextExpanded = !isExpanded;
+
+				header.setAttribute(
+					"aria-expanded",
+					String(nextExpanded)
+				);
+				childList.hidden = !nextExpanded;
+				chevron.toggleClass(
+					"is-collapsed",
+					!nextExpanded
+				);
+				this.collapsedFolderState.setCollapsed(
+					childFolder.path,
+					!nextExpanded
+				);
+			});
 		}
 	}
 
@@ -58,11 +90,15 @@ export class TreeRenderer {
 			cls: "folder-view-file",
 		});
 
+		this.iconService.renderFileIcon(item, fileNode.file);
+
 		const link = item.createEl("a", {
 			cls: "internal-link folder-view-file-link",
+			attr: {
+				href: fileNode.file.path,
+				"data-href": fileNode.file.path,
+			},
 		});
-
-		this.iconService.renderFileIcon(link, fileNode.file);
 
 		link.createSpan({
 			text: fileNode.displayName,
