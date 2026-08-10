@@ -20,16 +20,35 @@ export default class FolderViewPlugin extends Plugin {
 			collapsedFolderState
 		);
 
+		this.registerEvent(
+			this.app.vault.on("create", (file) => {
+				this.folderView.handleVaultChanges(file.path);
+			})
+		);
+		this.registerEvent(
+			this.app.vault.on("delete", (file) => {
+				this.folderView.handleVaultChanges(file.path);
+			})
+		);
+		this.registerEvent(
+			this.app.vault.on("rename", (file, oldPath) => {
+				this.folderView.handleVaultChanges(
+					oldPath,
+					file.path
+				);
+			})
+		);
+
 		this.registerMarkdownCodeBlockProcessor(
 			"folderview",
 			async (
 				source: string,
 				el: HTMLElement,
-				_ctx: MarkdownPostProcessorContext
+				ctx: MarkdownPostProcessorContext
 			) => {
-				const folderPath = source.trim();
-
-				this.folderView.render(el, folderPath);
+				ctx.addChild(
+					this.folderView.createRenderChild(el, source)
+				);
 			}
 		);
 	}

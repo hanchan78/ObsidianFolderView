@@ -14,6 +14,7 @@ Current features:
 
 * Display every file in a folder.
 * Recursively include all subfolders.
+* Display empty folders.
 * Show **all file types**, not just Markdown notes.
 * Display Markdown notes without the `.md` extension.
 * Display other files with their file extension.
@@ -24,6 +25,7 @@ Current features:
 * Use native Obsidian icons for folders and common file types.
 * Click any file to open it just like a normal internal Obsidian link.
 * Preview a file by hovering over its filename when Obsidian's page preview feature is enabled.
+* Update rendered trees when files or folders are created, renamed, moved, or deleted.
 
 ---
 
@@ -127,7 +129,6 @@ Attachments
 
 At the current stage of development:
 
-* File-system changes do not update an already rendered tree automatically.
 * The tree is rebuilt when rendered.
 * Sorting and displayed file extensions are not yet configurable.
 * Renaming or moving a folder does not transfer its saved collapsed state to the new path.
@@ -140,7 +141,6 @@ These limitations will be addressed in future releases.
 
 The following features are planned:
 
-* Live updating when files are created, renamed, moved, or deleted
 * Search and filtering
 * Configurable sorting
 * Optional file extensions

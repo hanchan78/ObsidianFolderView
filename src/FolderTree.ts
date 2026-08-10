@@ -1,8 +1,8 @@
-import { TFile } from "obsidian";
+import { TFile, TFolder } from "obsidian";
 import { FileNode, FolderNode } from "./Types";
 
 export class FolderTree {
-	build(files: TFile[], rootPath: string): FolderNode {
+	build(folder: TFolder | null, rootPath: string): FolderNode {
 		const root: FolderNode = {
 			name: this.getFolderName(rootPath),
 			path: rootPath,
@@ -10,55 +10,31 @@ export class FolderTree {
 			files: [],
 		};
 
-		for (const file of files) {
-			const relativePath = file.path
-				.slice(rootPath.length)
-				.replace(/^\/+/, "");
-
-			if (relativePath.length === 0) {
-				continue;
-			}
-
-			const parts = relativePath.split("/");
-			const fileName = parts.pop();
-
-			if (fileName === undefined) {
-				continue;
-			}
-
-			let currentFolder: FolderNode = root;
-
-			for (const part of parts) {
-				let childFolder: FolderNode | undefined =
-					currentFolder.folders.find(
-						(folder) => folder.name === part
-					);
-
-				if (childFolder === undefined) {
-					const folderPath =
-						currentFolder.path.length === 0
-							? part
-							: `${currentFolder.path}/${part}`;
-
-					childFolder = {
-						name: part,
-						path: folderPath,
-						folders: [],
-						files: [],
-					};
-
-					currentFolder.folders.push(childFolder);
-				}
-
-				currentFolder = childFolder;
-			}
-
-			currentFolder.files.push(this.createFileNode(file));
+		if (folder !== null) {
+			this.addChildren(root, folder);
 		}
 
 		this.sortTree(root);
 
 		return root;
+	}
+
+	private addChildren(node: FolderNode, folder: TFolder): void {
+		for (const child of folder.children) {
+			if (child instanceof TFile) {
+				node.files.push(this.createFileNode(child));
+			} else if (child instanceof TFolder) {
+				const childNode: FolderNode = {
+					name: child.name,
+					path: child.path,
+					folders: [],
+					files: [],
+				};
+
+				node.folders.push(childNode);
+				this.addChildren(childNode, child);
+			}
+		}
 	}
 
 	private createFileNode(file: TFile): FileNode {
