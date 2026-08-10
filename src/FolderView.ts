@@ -2,6 +2,7 @@ import { App, MarkdownRenderChild, TFolder } from "obsidian";
 import { CollapsedFolderState } from "./CollapsedFolderState";
 import { FolderTree } from "./FolderTree";
 import { TreeRenderer } from "./TreeRenderer";
+import { FolderViewSettings } from "./Settings";
 
 export class FolderView {
 	private readonly folderTree: FolderTree;
@@ -10,7 +11,8 @@ export class FolderView {
 
 	constructor(
 		private readonly app: App,
-		collapsedFolderState: CollapsedFolderState
+		collapsedFolderState: CollapsedFolderState,
+		private settings: FolderViewSettings
 	) {
 		this.folderTree = new FolderTree();
 		this.treeRenderer = new TreeRenderer(
@@ -26,7 +28,8 @@ export class FolderView {
 		return new FolderViewRenderChild(
 			container,
 			this.normalizePath(folderPath),
-			(path) => this.render(container, path),
+			(path, query, onQueryChange) =>
+				this.render(container, path, query, onQueryChange),
 			(view) => this.renderedViews.add(view),
 			(view) => this.renderedViews.delete(view)
 		);
@@ -38,11 +41,41 @@ export class FolderView {
 		}
 	}
 
-	private render(container: HTMLElement, folderPath: string): void {
-		const folder = this.getFolder(folderPath);
-		const tree = this.folderTree.build(folder, folderPath);
+	updateSettings(settings: FolderViewSettings): void {
+		this.settings = settings;
 
-		this.treeRenderer.render(container, tree);
+		for (const view of this.renderedViews) {
+			view.refresh();
+		}
+	}
+
+	private render(
+		container: HTMLElement,
+		folderPath: string,
+		searchQuery: string,
+		onSearchQueryChange: (query: string) => void
+	): void {
+		const folder = this.getFolder(folderPath);
+
+		if (folder === null) {
+			this.treeRenderer.renderMissingFolder(container, folderPath);
+			return;
+		}
+
+		const tree = this.folderTree.build(
+			folder,
+			folderPath,
+			this.settings.sortDirection,
+			this.settings.showFileExtensions
+		);
+
+		this.treeRenderer.render(
+			container,
+			tree,
+			searchQuery,
+			onSearchQueryChange,
+			this.settings
+		);
 	}
 
 	private getFolder(folderPath: string): TFolder | null {
@@ -63,11 +96,16 @@ export class FolderView {
 
 class FolderViewRenderChild extends MarkdownRenderChild {
 	private refreshTimer: number | undefined;
+	private searchQuery = "";
 
 	constructor(
 		container: HTMLElement,
 		private readonly folderPath: string,
-		private readonly renderView: (folderPath: string) => void,
+		private readonly renderView: (
+			folderPath: string,
+			searchQuery: string,
+			onSearchQueryChange: (query: string) => void
+		) => void,
 		private readonly registerView: (
 			view: FolderViewRenderChild
 		) => void,
@@ -80,7 +118,7 @@ class FolderViewRenderChild extends MarkdownRenderChild {
 
 	onload(): void {
 		this.registerView(this);
-		this.renderView(this.folderPath);
+		this.render();
 	}
 
 	onunload(): void {
@@ -102,8 +140,22 @@ class FolderViewRenderChild extends MarkdownRenderChild {
 
 		this.refreshTimer = window.setTimeout(() => {
 			this.refreshTimer = undefined;
-			this.renderView(this.folderPath);
+			this.render();
 		}, 100);
+	}
+
+	refresh(): void {
+		this.render();
+	}
+
+	private render(): void {
+		this.renderView(
+			this.folderPath,
+			this.searchQuery,
+			(query) => {
+				this.searchQuery = query;
+			}
+		);
 	}
 
 	private isAffectedBy(changedPath: string): boolean {

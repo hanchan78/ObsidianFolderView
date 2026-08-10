@@ -17,15 +17,17 @@ Current features:
 * Display empty folders.
 * Show **all file types**, not just Markdown notes.
 * Display Markdown notes without the `.md` extension.
-* Display other files with their file extension.
-* Show files before subfolders at every level.
-* Sort files and subfolders alphabetically within their groups.
+* Optionally display extensions for files other than Markdown notes.
+* Choose whether files or subfolders appear first at every level.
+* Sort files and subfolders from A to Z or Z to A within their groups.
 * Collapse and expand folders with the mouse or keyboard.
 * Remember collapsed folders across notes, plugin reloads, and Obsidian restarts.
 * Use native Obsidian icons for folders and common file types.
+* Customize folder, fallback file, and extension-specific icons.
 * Click any file to open it just like a normal internal Obsidian link.
 * Preview a file by hovering over its filename when Obsidian's page preview feature is enabled.
 * Update rendered trees when files or folders are created, renamed, moved, or deleted.
+* Filter files and folders within each rendered tree.
 
 ---
 
@@ -130,7 +132,6 @@ Attachments
 At the current stage of development:
 
 * The tree is rebuilt when rendered.
-* Sorting and displayed file extensions are not yet configurable.
 * Renaming or moving a folder does not transfer its saved collapsed state to the new path.
 
 These limitations will be addressed in future releases.
@@ -141,10 +142,6 @@ These limitations will be addressed in future releases.
 
 The following features are planned:
 
-* Search and filtering
-* Configurable sorting
-* Optional file extensions
-* Custom icons
 * Highlight the currently open note
 * Full mobile support
 * Community Plugin release

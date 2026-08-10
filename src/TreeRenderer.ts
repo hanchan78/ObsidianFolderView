@@ -1,38 +1,111 @@
 import { App } from "obsidian";
 import { CollapsedFolderState } from "./CollapsedFolderState";
 import { IconService } from "./Icons";
+import { TreeFilter } from "./TreeFilter";
 import { FileNode, FolderNode } from "./Types";
+import { FolderViewSettings, ItemOrder } from "./Settings";
 
 export class TreeRenderer {
 	private readonly iconService: IconService;
+	private readonly treeFilter: TreeFilter;
 
 	constructor(
 		private readonly app: App,
 		private readonly collapsedFolderState: CollapsedFolderState
 	) {
 		this.iconService = new IconService();
+		this.treeFilter = new TreeFilter();
 	}
 
-	render(container: HTMLElement, root: FolderNode): void {
+	render(
+		container: HTMLElement,
+		root: FolderNode,
+		searchQuery: string,
+		onSearchQueryChange: (query: string) => void,
+		settings: FolderViewSettings
+	): void {
 		container.empty();
+		this.iconService.configure(settings);
+
+		const searchInput = container.createEl("input", {
+			cls: "folder-view-search",
+			attr: {
+				type: "search",
+				placeholder: "Filter files and folders",
+				"aria-label": "Filter files and folders",
+			},
+		});
+		searchInput.value = searchQuery;
 
 		const list = container.createEl("ul", {
 			cls: "folder-view-tree",
 		});
 
-		this.renderFolderContents(list, root);
+		const renderResults = (query: string): void => {
+			list.empty();
+			const filteredRoot = this.treeFilter.filter(root, query);
+			const isFiltering = query.trim().length > 0;
+
+			if (
+				isFiltering &&
+				filteredRoot.files.length === 0 &&
+				filteredRoot.folders.length === 0
+			) {
+				list.createEl("li", {
+					text: "No matching files or folders.",
+					cls: "folder-view-empty-message",
+				});
+				return;
+			}
+
+			this.renderFolderContents(
+				list,
+				filteredRoot,
+				isFiltering,
+				settings.itemOrder
+			);
+		};
+
+		searchInput.addEventListener("input", () => {
+			onSearchQueryChange(searchInput.value);
+			renderResults(searchInput.value);
+		});
+
+		renderResults(searchQuery);
+	}
+
+	renderMissingFolder(container: HTMLElement, folderPath: string): void {
+		container.empty();
+		container.createDiv({
+			text: `Folder not found: ${folderPath}`,
+			cls: "folder-view-empty-message",
+		});
 	}
 
 	private renderFolderContents(
 		parent: HTMLElement,
-		folder: FolderNode
+		folder: FolderNode,
+		expandAll: boolean,
+		itemOrder: ItemOrder
 	): void {
-		for (const fileNode of folder.files) {
-			this.renderFile(parent, fileNode);
+		if (itemOrder === "files-first") {
+			this.renderFiles(parent, folder.files);
+			this.renderFolders(parent, folder.folders, expandAll, itemOrder);
+		} else {
+			this.renderFolders(parent, folder.folders, expandAll, itemOrder);
+			this.renderFiles(parent, folder.files);
 		}
+	}
 
-		for (const childFolder of folder.folders) {
+	private renderFolders(
+		parent: HTMLElement,
+		folders: FolderNode[],
+		expandAll: boolean,
+		itemOrder: ItemOrder
+	): void {
+		for (const childFolder of folders) {
 			const isCollapsed =
+				!expandAll &&
 				this.collapsedFolderState.isCollapsed(childFolder.path);
 			const item = parent.createEl("li", {
 				cls: "folder-view-folder",
@@ -61,7 +134,12 @@ export class TreeRenderer {
 			});
 			childList.hidden = isCollapsed;
 
-			this.renderFolderContents(childList, childFolder);
+			this.renderFolderContents(
+				childList,
+				childFolder,
+				expandAll,
+				itemOrder
+			);
 
 			header.addEventListener("click", () => {
 				const isExpanded =
@@ -77,11 +155,19 @@ export class TreeRenderer {
 					"is-collapsed",
 					!nextExpanded
 				);
-				this.collapsedFolderState.setCollapsed(
-					childFolder.path,
-					!nextExpanded
-				);
+				if (!expandAll) {
+					this.collapsedFolderState.setCollapsed(
+						childFolder.path,
+						!nextExpanded
+					);
+				}
 			});
+		}
+	}
+
+	private renderFiles(parent: HTMLElement, files: FileNode[]): void {
+		for (const fileNode of files) {
+			this.renderFile(parent, fileNode);
 		}
 	}
 

@@ -1,8 +1,14 @@
 import { TFile, TFolder } from "obsidian";
 import { FileNode, FolderNode } from "./Types";
+import { SortDirection } from "./Settings";
 
 export class FolderTree {
-	build(folder: TFolder | null, rootPath: string): FolderNode {
+	build(
+		folder: TFolder | null,
+		rootPath: string,
+		sortDirection: SortDirection,
+		showFileExtensions: boolean
+	): FolderNode {
 		const root: FolderNode = {
 			name: this.getFolderName(rootPath),
 			path: rootPath,
@@ -11,18 +17,24 @@ export class FolderTree {
 		};
 
 		if (folder !== null) {
-			this.addChildren(root, folder);
+			this.addChildren(root, folder, showFileExtensions);
 		}
 
-		this.sortTree(root);
+		this.sortTree(root, sortDirection);
 
 		return root;
 	}
 
-	private addChildren(node: FolderNode, folder: TFolder): void {
+	private addChildren(
+		node: FolderNode,
+		folder: TFolder,
+		showFileExtensions: boolean
+	): void {
 		for (const child of folder.children) {
 			if (child instanceof TFile) {
-				node.files.push(this.createFileNode(child));
+				node.files.push(
+					this.createFileNode(child, showFileExtensions)
+				);
 			} else if (child instanceof TFolder) {
 				const childNode: FolderNode = {
 					name: child.name,
@@ -32,36 +44,48 @@ export class FolderTree {
 				};
 
 				node.folders.push(childNode);
-				this.addChildren(childNode, child);
+				this.addChildren(
+					childNode,
+					child,
+					showFileExtensions
+				);
 			}
 		}
 	}
 
-	private createFileNode(file: TFile): FileNode {
+	private createFileNode(
+		file: TFile,
+		showFileExtensions: boolean
+	): FileNode {
 		return {
 			file,
 			displayName:
-				file.extension === "md"
+				file.extension === "md" || !showFileExtensions
 					? file.basename
 					: file.name,
 		};
 	}
 
-	private sortTree(folder: FolderNode): void {
+	private sortTree(
+		folder: FolderNode,
+		sortDirection: SortDirection
+	): void {
+		const direction = sortDirection === "ascending" ? 1 : -1;
+
 		folder.folders.sort((a, b) =>
-			a.name.localeCompare(b.name, undefined, {
+			direction * a.name.localeCompare(b.name, undefined, {
 				sensitivity: "base",
 			})
 		);
 
 		folder.files.sort((a, b) =>
-			a.displayName.localeCompare(b.displayName, undefined, {
+			direction * a.displayName.localeCompare(b.displayName, undefined, {
 				sensitivity: "base",
 			})
 		);
 
 		for (const childFolder of folder.folders) {
-			this.sortTree(childFolder);
+			this.sortTree(childFolder, sortDirection);
 		}
 	}
 

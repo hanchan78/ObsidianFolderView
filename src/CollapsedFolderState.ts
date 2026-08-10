@@ -17,6 +17,10 @@ export class CollapsedFolderState {
 		return this.collapsedFolders.has(folderPath);
 	}
 
+	getCollapsedFolders(): string[] {
+		return [...this.collapsedFolders];
+	}
+
 	setCollapsed(folderPath: string, collapsed: boolean): void {
 		if (collapsed) {
 			this.collapsedFolders.add(folderPath);

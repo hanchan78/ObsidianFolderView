@@ -5,6 +5,16 @@
 	list-style: none;
 }
 
+.folder-view-search {
+	width: 100%;
+	margin-block-end: var(--size-2-2);
+}
+
+.folder-view-empty-message {
+	padding: var(--size-2-2);
+	color: var(--text-muted);
+}
+
 .folder-view-folder-children {
 	margin-inline-start: 1.25rem;
 }
