@@ -28,6 +28,31 @@ export class CollapsedFolderState {
 			this.collapsedFolders.delete(folderPath);
 		}
 
+		this.queueSave();
+	}
+
+	renameFolder(oldPath: string, newPath: string): void {
+		const oldPrefix = `${oldPath}/`;
+		let changed = false;
+
+		for (const folderPath of [...this.collapsedFolders]) {
+			if (folderPath !== oldPath && !folderPath.startsWith(oldPrefix)) {
+				continue;
+			}
+
+			this.collapsedFolders.delete(folderPath);
+			this.collapsedFolders.add(
+				newPath + folderPath.slice(oldPath.length)
+			);
+			changed = true;
+		}
+
+		if (changed) {
+			this.queueSave();
+		}
+	}
+
+	private queueSave(): void {
 		const data: FolderViewData = {
 			collapsedFolders: [...this.collapsedFolders],
 		};

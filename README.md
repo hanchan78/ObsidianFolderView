@@ -22,6 +22,7 @@ Current features:
 * Sort files and subfolders from A to Z or Z to A within their groups.
 * Collapse and expand folders with the mouse or keyboard.
 * Remember collapsed folders across notes, plugin reloads, and Obsidian restarts.
+* Preserve collapsed state when folders are renamed or moved.
 * Use native Obsidian icons for folders and common file types.
 * Customize folder, fallback file, and extension-specific icons.
 * Click any file to open it just like a normal internal Obsidian link.
@@ -134,7 +135,6 @@ Attachments
 At the current stage of development:
 
 * The tree is rebuilt when rendered.
-* Renaming or moving a folder does not transfer its saved collapsed state to the new path.
 
 These limitations will be addressed in future releases.
 

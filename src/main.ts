@@ -1,4 +1,8 @@
-import { MarkdownPostProcessorContext, Plugin } from "obsidian";
+import {
+	MarkdownPostProcessorContext,
+	Plugin,
+	TFolder,
+} from "obsidian";
 import {
 	CollapsedFolderState,
 	FolderViewData,
@@ -54,6 +58,13 @@ export default class FolderViewPlugin extends Plugin {
 		);
 		this.registerEvent(
 			this.app.vault.on("rename", (file, oldPath) => {
+				if (file instanceof TFolder) {
+					this.collapsedFolderState.renameFolder(
+						oldPath,
+						file.path
+					);
+				}
+
 				this.folderView.handleVaultChanges(
 					oldPath,
 					file.path
