@@ -13,15 +13,25 @@ export class TreeFilter {
 			files: root.files.filter((file) =>
 				this.matches(file.displayName, normalizedQuery)
 			),
-			folders: root.folders.flatMap((folder) => {
-				const filteredFolder = this.filterFolder(
-					folder,
-					normalizedQuery
-				);
-
-				return filteredFolder === null ? [] : [filteredFolder];
-			}),
+			folders: this.filterFolders(root.folders, normalizedQuery),
 		};
+	}
+
+	private filterFolders(
+		folders: FolderNode[],
+		normalizedQuery: string
+	): FolderNode[] {
+		const matches: FolderNode[] = [];
+
+		for (const folder of folders) {
+			const filteredFolder = this.filterFolder(folder, normalizedQuery);
+
+			if (filteredFolder !== null) {
+				matches.push(filteredFolder);
+			}
+		}
+
+		return matches;
 	}
 
 	private filterFolder(
@@ -35,14 +45,7 @@ export class TreeFilter {
 		const files = folder.files.filter((file) =>
 			this.matches(file.displayName, normalizedQuery)
 		);
-		const folders = folder.folders.flatMap((childFolder) => {
-			const filteredFolder = this.filterFolder(
-				childFolder,
-				normalizedQuery
-			);
-
-			return filteredFolder === null ? [] : [filteredFolder];
-		});
+		const folders = this.filterFolders(folder.folders, normalizedQuery);
 
 		if (files.length === 0 && folders.length === 0) {
 			return null;
