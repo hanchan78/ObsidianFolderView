@@ -30,6 +30,8 @@ export class FolderView {
 			this.normalizePath(folderPath),
 			(path, query, onQueryChange) =>
 				this.render(container, path, query, onQueryChange),
+			(activeFilePath) =>
+				this.treeRenderer.highlightFile(container, activeFilePath),
 			(view) => this.renderedViews.add(view),
 			(view) => this.renderedViews.delete(view)
 		);
@@ -46,6 +48,12 @@ export class FolderView {
 
 		for (const view of this.renderedViews) {
 			view.refresh();
+		}
+	}
+
+	handleActiveFileChange(activeFilePath: string | null): void {
+		for (const view of this.renderedViews) {
+			view.highlightFile(activeFilePath);
 		}
 	}
 
@@ -74,7 +82,8 @@ export class FolderView {
 			tree,
 			searchQuery,
 			onSearchQueryChange,
-			this.settings
+			this.settings,
+			this.app.workspace.getActiveFile()?.path ?? null
 		);
 	}
 
@@ -105,6 +114,9 @@ class FolderViewRenderChild extends MarkdownRenderChild {
 			folderPath: string,
 			searchQuery: string,
 			onSearchQueryChange: (query: string) => void
+		) => void,
+		private readonly highlightView: (
+			activeFilePath: string | null
 		) => void,
 		private readonly registerView: (
 			view: FolderViewRenderChild
@@ -146,6 +158,10 @@ class FolderViewRenderChild extends MarkdownRenderChild {
 
 	refresh(): void {
 		this.render();
+	}
+
+	highlightFile(activeFilePath: string | null): void {
+		this.highlightView(activeFilePath);
 	}
 
 	private render(): void {

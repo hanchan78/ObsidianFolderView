@@ -60,6 +60,13 @@ export default class FolderViewPlugin extends Plugin {
 				);
 			})
 		);
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", () => {
+				this.folderView.handleActiveFileChange(
+					this.app.workspace.getActiveFile()?.path ?? null
+				);
+			})
+		);
 
 		this.registerMarkdownCodeBlockProcessor(
 			"folderview",

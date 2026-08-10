@@ -28,6 +28,8 @@ Current features:
 * Preview a file by hovering over its filename when Obsidian's page preview feature is enabled.
 * Update rendered trees when files or folders are created, renamed, moved, or deleted.
 * Filter files and folders within each rendered tree.
+* Highlight the currently active note.
+* Support desktop and mobile layouts with touch-friendly controls.
 
 ---
 
@@ -142,8 +144,6 @@ These limitations will be addressed in future releases.
 
 The following features are planned:
 
-* Highlight the currently open note
-* Full mobile support
 * Community Plugin release
 
 ---

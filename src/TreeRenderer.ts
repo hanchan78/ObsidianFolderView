@@ -22,7 +22,8 @@ export class TreeRenderer {
 		root: FolderNode,
 		searchQuery: string,
 		onSearchQueryChange: (query: string) => void,
-		settings: FolderViewSettings
+		settings: FolderViewSettings,
+		activeFilePath: string | null
 	): void {
 		container.empty();
 		this.iconService.configure(settings);
@@ -62,7 +63,8 @@ export class TreeRenderer {
 				list,
 				filteredRoot,
 				isFiltering,
-				settings.itemOrder
+				settings.itemOrder,
+				activeFilePath
 			);
 		};
 
@@ -72,6 +74,23 @@ export class TreeRenderer {
 		});
 
 		renderResults(searchQuery);
+	}
+
+	highlightFile(
+		container: HTMLElement,
+		activeFilePath: string | null
+	): void {
+		const fileItems = container.querySelectorAll<HTMLElement>(
+			".folder-view-file[data-path]"
+		);
+
+		fileItems.forEach((item) => {
+			item.toggleClass(
+				"is-active",
+				activeFilePath !== null &&
+					item.dataset.path === activeFilePath
+			);
+		});
 	}
 
 	renderMissingFolder(container: HTMLElement, folderPath: string): void {
@@ -86,14 +105,15 @@ export class TreeRenderer {
 		parent: HTMLElement,
 		folder: FolderNode,
 		expandAll: boolean,
-		itemOrder: ItemOrder
+		itemOrder: ItemOrder,
+		activeFilePath: string | null
 	): void {
 		if (itemOrder === "files-first") {
-			this.renderFiles(parent, folder.files);
-			this.renderFolders(parent, folder.folders, expandAll, itemOrder);
+			this.renderFiles(parent, folder.files, activeFilePath);
+			this.renderFolders(parent, folder.folders, expandAll, itemOrder, activeFilePath);
 		} else {
-			this.renderFolders(parent, folder.folders, expandAll, itemOrder);
-			this.renderFiles(parent, folder.files);
+			this.renderFolders(parent, folder.folders, expandAll, itemOrder, activeFilePath);
+			this.renderFiles(parent, folder.files, activeFilePath);
 		}
 	}
 
@@ -101,7 +121,8 @@ export class TreeRenderer {
 		parent: HTMLElement,
 		folders: FolderNode[],
 		expandAll: boolean,
-		itemOrder: ItemOrder
+		itemOrder: ItemOrder,
+		activeFilePath: string | null
 	): void {
 		for (const childFolder of folders) {
 			const isCollapsed =
@@ -138,7 +159,8 @@ export class TreeRenderer {
 				childList,
 				childFolder,
 				expandAll,
-				itemOrder
+				itemOrder,
+				activeFilePath
 			);
 
 			header.addEventListener("click", () => {
@@ -165,16 +187,28 @@ export class TreeRenderer {
 		}
 	}
 
-	private renderFiles(parent: HTMLElement, files: FileNode[]): void {
+	private renderFiles(
+		parent: HTMLElement,
+		files: FileNode[],
+		activeFilePath: string | null
+	): void {
 		for (const fileNode of files) {
-			this.renderFile(parent, fileNode);
+			this.renderFile(parent, fileNode, activeFilePath);
 		}
 	}
 
-	private renderFile(parent: HTMLElement, fileNode: FileNode): void {
+	private renderFile(
+		parent: HTMLElement,
+		fileNode: FileNode,
+		activeFilePath: string | null
+	): void {
 		const item = parent.createEl("li", {
 			cls: "folder-view-file",
+			attr: {
+				"data-path": fileNode.file.path,
+			},
 		});
+		item.toggleClass("is-active", fileNode.file.path === activeFilePath);
 
 		this.iconService.renderFileIcon(item, fileNode.file);
 
