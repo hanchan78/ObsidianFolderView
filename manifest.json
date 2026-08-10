@@ -1,11 +1,10 @@
 {
-	"id": "FolderView",
+	"id": "folder-view",
 	"name": "FolderView",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Shows folder contents in a view.",
+	"description": "Render searchable, collapsible folder trees inside notes.",
 	"author": "Hans",
-	"authorUrl": "",
-	"fundingUrl": "",
+	"authorUrl": "https://github.com/hanchan78",
 	"isDesktopOnly": false
 }

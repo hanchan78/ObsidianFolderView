@@ -4,7 +4,7 @@ FolderView is an Obsidian community plugin that renders a folder tree directly i
 
 Unlike Dataview, FolderView is designed specifically for browsing folders and files. It displays the contents of any folder in your vault as a tree, including subfolders and non-Markdown files.
 
-> **Note:** This plugin is currently under active development. More features will be added over time.
+> **Note:** FolderView is preparing for its first Community Plugin release.
 
 ---
 
@@ -39,7 +39,7 @@ Current features:
 Clone or download this repository into your vault's plugins folder:
 
 ```
-<Your Vault>/.obsidian/plugins/FolderView/
+<Your Vault>/.obsidian/plugins/folder-view/
 ```
 
 Install dependencies:
@@ -57,6 +57,9 @@ npm run dev
 Enable the plugin in:
 
 **Settings → Community Plugins**
+
+For a manual release installation, copy `main.js`, `manifest.json`, and
+`styles.css` into the same `folder-view` directory.
 
 ---
 
@@ -108,6 +111,17 @@ Select a folder row to collapse or expand its contents. FolderView remembers thi
 
 ---
 
+## Settings
+
+Open **Settings → FolderView** to configure:
+
+* Sort direction and whether files or folders appear first.
+* Whether non-Markdown file extensions are displayed.
+* Folder and fallback file icons.
+* Extension-specific icon overrides using Obsidian icon names.
+
+---
+
 ## Folder Paths
 
 Paths are relative to the root of your vault.
@@ -140,14 +154,6 @@ These limitations will be addressed in future releases.
 
 ---
 
-## Planned Features
-
-The following features are planned:
-
-* Community Plugin release
-
----
-
 ## Development
 
 FolderView is written in TypeScript using the official Obsidian Plugin API.
@@ -174,3 +180,15 @@ The project aims to follow clean architecture principles:
 * Easy to extend and maintain
 
 Contributions, suggestions, and bug reports are welcome.
+
+### Release validation
+
+Run the complete release check before creating a release:
+
+```bash
+npm run check
+```
+
+Create a GitHub release whose tag exactly matches the version in
+`manifest.json` without a leading `v`. Attach `main.js`, `manifest.json`,
+and `styles.css` as individual release assets.

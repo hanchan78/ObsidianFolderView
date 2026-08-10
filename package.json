@@ -1,16 +1,33 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "folder-view",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Render searchable, collapsible folder trees inside Obsidian notes.",
 	"main": "main.js",
 	"type": "module",
+	"private": true,
+	"engines": {
+		"node": ">=18"
+	},
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"check": "npm run lint && npm run build && node scripts/validate-release.mjs",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "eslint ."
 	},
-	"keywords": [],
+	"keywords": [
+		"obsidian",
+		"obsidian-plugin",
+		"folder-tree"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hanchan78/ObsidianFolderView.git"
+	},
+	"bugs": {
+		"url": "https://github.com/hanchan78/ObsidianFolderView/issues"
+	},
+	"homepage": "https://github.com/hanchan78/ObsidianFolderView#readme",
 	"license": "0-BSD",
 	"devDependencies": {
 		"@types/node": "^16.11.6",
