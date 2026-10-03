@@ -60,7 +60,7 @@ npm run build
       constants.ts
     types.ts         # TypeScript interfaces and types
   ```
-- **Do not commit build artifacts**: Never commit `node_modules/`, `main.js`, or other generated files to version control.
+- **Commit publication artifacts**: Track the production `main.js`, `manifest.json`, and `styles.css` at the repository root. Git Installer & Updater downloads these files directly from `main` and does not build source or download release assets. Never commit `node_modules/` or sourcemaps.
 - Keep the plugin small. Avoid large dependencies. Prefer browser-compatible packages.
 - Generated output should be placed at the plugin root or `dist/` depending on your build setup. Release artifacts must end up at the top level of the plugin folder in the vault (`main.js`, `manifest.json`, `styles.css`).
 
@@ -96,6 +96,8 @@ npm run build
 ## Versioning & releases
 
 - Bump `version` in `manifest.json` (SemVer) and update `versions.json` to map plugin version → minimum app version.
+- Keep `package.json` and `package-lock.json` versions consistent with the manifest. Every update must have a version newer than the installed version.
+- Before pushing an update to `main`, run `npm run check` (lint, production build, and release validation), then commit the freshly built root `main.js`, `manifest.json`, and `styles.css` together with the source and version metadata. Rebuild after any subsequent source changes. Release assets alone do not publish an update for Git Installer & Updater.
 - Create a GitHub release whose tag exactly matches `manifest.json`'s `version`. Do not use a leading `v`.
 - Attach `manifest.json`, `main.js`, and `styles.css` (if present) to the release as individual assets.
 - After the initial release, follow the process to add/update your plugin in the community catalog as required.

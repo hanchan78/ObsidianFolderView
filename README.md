@@ -183,11 +183,36 @@ Contributions, suggestions, and bug reports are welcome.
 
 ### Release validation
 
-Run the complete release check before creating a release:
+Run the complete release check before committing or pushing an update. This
+runs lint, builds the production `main.js` at the repository root, and validates
+the release files and version metadata:
 
 ```bash
 npm run check
 ```
+
+### Publishing for Git Installer & Updater
+
+Configure the updater with repository `hanchan78/ObsidianFolderView`, branch
+`main`, and the built-files directory set to the repository root. It compares
+`manifest.json` versions and downloads `main.js` and `styles.css` from the same
+commit. It does not build TypeScript or download GitHub release assets.
+
+Before each update:
+
+1. Set a version newer than the installed version in `manifest.json` and keep
+   `package.json`, `package-lock.json`, and `versions.json` consistent. Version
+   `1.0.2` updates an installation running `1.0.1`.
+2. Stop any development watcher and run `npm run check`. Rebuild if you change
+   source afterward; publish the production bundle, without inline sourcemaps.
+3. Commit the freshly built root `main.js`, `manifest.json`, and `styles.css`
+   together with the source and version metadata. Keep `node_modules/` and
+   sourcemaps out of Git.
+4. Push that commit to `main`, then run the updater on the phone and reload
+   Obsidian to load the new plugin version.
+
+The compiled files must be committed before pushing. Uploading release assets
+alone will not make an update available to this updater.
 
 Create a GitHub release whose tag exactly matches the version in
 `manifest.json` without a leading `v`. Attach `main.js`, `manifest.json`,
